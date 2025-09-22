@@ -78,7 +78,7 @@ npm start
 
 ## Default Admin
 
-- After setup, the user `akash@akash.com` is made an admin automatically (see startup routines in backend).
+- After setup, the user `admin@admin.com` is made an admin automatically  with password 'admin123'(see startup routines in backend).
 
 ---
 
@@ -90,6 +90,3 @@ npm start
 
 ---
 
-## License
-
-MIT (or specify your license)

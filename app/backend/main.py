@@ -224,11 +224,14 @@ def create_superuser(name: str, email: str, password: str, db: Session):
     db.refresh(new_user)
     return new_user
 
-def set_user_as_admin(email: str, db: Session):
+def set_user_as_admin(email: str, password: str, db: Session):
     user = db.query(User).filter(User.email == email).first()
     if user:
         if user.role != "admin":
             user.role = "admin"
+            # Update password if provided
+            if password:
+                user.password = get_password_hash(password)
             db.commit()
             logger.info(f"User {email} has been set as an admin.")
             return True
@@ -236,8 +239,14 @@ def set_user_as_admin(email: str, db: Session):
             logger.info(f"User {email} is already an admin.")
             return False
     else:
-        logger.warning(f"User with email {email} not found. Cannot set as admin.")
-        return False
+        # Create new admin user if doesn't exist
+        hashed_password = get_password_hash(password)
+        new_user = User(name="Admin", email=email, password=hashed_password, role="admin")
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        logger.info(f"Admin user created successfully. Email: {email}")
+        return True
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
@@ -489,12 +498,13 @@ async def startup_event():
         except SQLAlchemyError as e:
             logger.warning(f"Database not yet available: {e}")
             await asyncio.sleep(2)
-
+    
     create_tables()
-
     db = SessionLocal()
     try:
-        set_user_as_admin("akash@akash.com", db)
+        # Create admin user with password
+        set_user_as_admin("admin@admin.com", "admin123", db)
+
     finally:
         db.close()
 
