@@ -33,7 +33,7 @@ OR
 ### 1. Clone the Repository
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/akashbennyvarghese/Event-Ticket-Booking.git
 cd event-booking-system
 ```
 
